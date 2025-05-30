@@ -1,0 +1,20 @@
+#######################################
+# Classe
+#######################################
+KeyLed	KEYWORD1
+
+#######################################
+# Métodos públicos
+#######################################
+begin	KEYWORD2
+loopLed	KEYWORD2
+on	KEYWORD2
+off	KEYWORD2
+write	KEYWORD2
+read	KEYWORD2
+blink	KEYWORD2
+stopBlink	KEYWORD2
+getPin	KEYWORD2
+setCallbackTimeOn	KEYWORD2
+setCountBlink	KEYWORD2
+setCallBackCountBlink	KEYWORD2

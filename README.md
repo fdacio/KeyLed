@@ -9,7 +9,9 @@ Uma biblioteca para controle de LEDs no Arduino com funcionalidades avançadas c
 
 ## Instalação
 
-Coloque a pasta `KeyLed` na pasta `libraries` do seu Arduino.
+Repositório https://github.com/fdacio/KeyLed
+Baixe o arquivo zip
+Instale no Arduino IDE
 
 ## Exemplo básico
 
@@ -26,3 +28,19 @@ void setup() {
 void loop() {
   led.loopLed();
 }
+
+## Métodos disponíveis
+
+void begin();
+void loopLed();
+void on();
+void on(unsigned int timeOn);
+void setCallbackTimeOn(void (*callbackTimeOn)(void));
+void off();
+void write(bool sin);
+bool read();
+void blink();
+void blink(unsigned int freqBlink);
+void stopBlink();
+void setCountBlink(unsigned int count);
+void setCallBackCountBlink(void (*callbackCountBlink)(void));

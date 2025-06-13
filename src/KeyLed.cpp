@@ -5,9 +5,10 @@
 */
 #include "KeyLed.h"
 
-
-KeyLed::KeyLed(uint8_t pin) { _pin = pin; }
-
+KeyLed::KeyLed(uint8_t pin) { 
+  _pin = pin; 
+  _sinInverse = false;
+}
 
 KeyLed::KeyLed(uint8_t pin, bool sinInverse) {
   _pin = pin;
@@ -16,17 +17,26 @@ KeyLed::KeyLed(uint8_t pin, bool sinInverse) {
 
 uint8_t KeyLed::getPin() { return _pin; }
 
-void KeyLed::begin() { pinMode(_pin, OUTPUT); }
+bool KeyLed::getSignal(bool signal) {
+  bool _signal = signal;
+  if (_sinInverse) _signal = !signal;
+  return _signal;
+}
+
+void KeyLed::begin() { 
+  pinMode(_pin, OUTPUT); 
+  _stateLed = getSignal(LOW);
+}
 
 void KeyLed::on() {
   _on = true;
   _off = false;
   _blink = false;
-  _stateLed = LOW;
+  _stateLed = getSignal(HIGH);
 }
 
-void KeyLed::on(unsigned int timeOn) { 
-  _timeOn = timeOn; 
+void KeyLed::on(unsigned int timeOn) {
+  _timeOn = timeOn;
   on();
 }
 
@@ -38,26 +48,25 @@ void KeyLed::off() {
   _off = true;
   _on = false;
   _blink = false;
-  _stateLed = LOW;
+  _stateLed = getSignal(LOW);
 }
 
 void KeyLed::write(bool sin) {
-  bool _sin = (_sinInverse) ? !sin : sin;
-  digitalWrite(_pin, _sin);
+  digitalWrite(_pin, getSignal(sin));
 }
 
-bool KeyLed::read() { return digitalRead(_pin); }
+bool KeyLed::read() { return getSignal(digitalRead(_pin)); }
 
 void KeyLed::stopBlink() {
   _blink = false;
-  write(LOW);
+  write(getSignal(LOW));
 }
 
 void KeyLed::blink() {
   _blink = true;
   _on = false;
   _off = false;
-  _stateLed = LOW;
+  _stateLed = getSignal(LOW);
 }
 
 void KeyLed::blink(unsigned int freqBlink) {
@@ -67,7 +76,7 @@ void KeyLed::blink(unsigned int freqBlink) {
 
 void KeyLed::setCountBlink(unsigned int count) {
   _countBlink = count;
-  if (read() == HIGH) {
+  if (read() == getSignal(HIGH)) {
     _countBlink++;
   }
   _hasCountBlink = true;
@@ -84,9 +93,9 @@ void KeyLed::loopLed() {
     _timeElapsed = millis() - _millisBlink;
 
     if (_timeElapsed < _freqBlink) {
-      _stateLed = HIGH;
+      _stateLed = getSignal(HIGH);
     } else if (_timeElapsed > _freqBlink) {
-      _stateLed = LOW;
+      _stateLed = getSignal(LOW);
     }
 
     // reset _millisBlink apos passar o tempo da frequencia
@@ -99,31 +108,34 @@ void KeyLed::loopLed() {
     // verfica a quantidade de blink
     if (_hasCountBlink && _countBlink == 0) {
       _blink = false;
-      _stateLed = LOW;
+      _stateLed = getSignal(LOW);
       _hasCountBlink = false;
-
       if (*_callBackCountBlink != NULL) {
         (*_callBackCountBlink)();
       }
     }
 
-    write(_stateLed);
+    write(getSignal(_stateLed));
   }
 
-  if (_on && !_blink) {
-    _timeElapsed = millis() - _timeStartOn;
-    if (_timeOn > 0 && _timeElapsed > _timeOn) {
-      _timeStartOn = millis();
-      _on = false;
-      _stateLed = !_stateLed;
-      if (*_callBackTimeOn != NULL) {
-        (*_callBackTimeOn)();
+  if (_on) {
+    // Verifica se tem um tempo para ficar On
+    if (_timeOn > 0) {
+      _timeElapsed = millis() - _timeStartOn;
+      // Verificar se o tempo de ficar On passou
+      if (_timeElapsed > _timeOn) {
+        _timeStartOn = millis();
+        _on = false;
+        _stateLed = getSignal(LOW);
+        if (*_callBackTimeOn != NULL) {
+          (*_callBackTimeOn)();
+        }
       }
     }
-    write(_stateLed);
+    write(getSignal(_stateLed));
   }
 
-  if (_off && !_blink) {
-    write(_stateLed);
+  if (_off) {
+    write(getSignal(_stateLed));
   }
 }

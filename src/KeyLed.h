@@ -36,8 +36,9 @@ public:
   void setCallBackCountBlink(void (*callbackCountBlink)(void));
 private:
   uint8_t _pin;
-  bool _stateLed = LOW;
   bool _sinInverse = false;
+  bool getSignal(bool state);
+  bool _stateLed = LOW;
   bool _blink = false;
   bool _on = false;
   bool _off = false;
